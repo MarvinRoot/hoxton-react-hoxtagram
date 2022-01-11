@@ -26,8 +26,15 @@
     {
       "id": 2,
       "title": "Coder cats",
-      "likes": 5,
+      "likes": 7,
       "image": "./assets/coder-cat.jpeg"
+    },
+    {
+      "title": "covid pup",
+      "image": "https://images.theconversation.com/files/319375/original/file-20200309-118956-1cqvm6j.jpg?ixlib=rb-1.1.0&q=45&auto=format&w=1200&h=900.0&fit=crop",
+      "likes": 3,
+      "comments": [],
+      "id": 3
     }
   ],
   "comments": [
@@ -60,6 +67,11 @@
       "content": "good boii",
       "imageId": 1,
       "id": 6
+    },
+    {
+      "content": "thats wild",
+      "imageId": 3,
+      "id": 7
     }
   ]
 }
