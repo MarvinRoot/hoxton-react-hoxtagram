@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import './App.css'
+import AddPostForm from './components/AddPostForm'
+import Post from './components/Post'
 
 function App() {
 
   const [images, setImages] = useState([])
   const [comments, setComments] = useState([])
-  const [newComment, setNewComment] = useState('')
 
   useEffect(() => {
     fetch('http://localhost:8000/images').then(resp => resp.json())
@@ -17,9 +18,9 @@ function App() {
 
   function updateLikes(image){
     //update state
-    image.likes ++
-    let updatedImages = JSON.parse(JSON.stringify(images))
-    
+    const updatedImages = JSON.parse(JSON.stringify(images))
+    const match = updatedImages.find(target => target.id === image.id)
+    match.likes++
     setImages(updatedImages)
     //update server
     return fetch(`http://localhost:8000/images/${image.id}`, {
@@ -69,65 +70,46 @@ function App() {
       },
       body: JSON.stringify({content: text, imageId: image.id})
     }).then(resp => resp.json())
+    fetch('http://localhost:8000/images/${image.id}/comments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({content: text, imageId: image.id})
+    }).then(resp => resp.json())
   }
+
+  function addPost(title, url) {
+    //update state
+    let updatedImages = JSON.parse(JSON.stringify(images))
+    updatedImages.push({title: title, image: url, likes: 0, comments: []})
+    setImages(updatedImages)
+    //update server
+    return fetch('http://localhost:8000/images', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({title: title, image: url, likes: 0, comments: []})
+    }).then(resp => resp.json())
+  }
+
   return (
     <div className="App">
 
-    <img className="logo" src="assets/hoxtagram-logo.png" />
-    <section className="image-container">
-      <form className="comment-form image-card">
-        <h2 className="title">New Post</h2>
-        <input
-          className="comment-input"
-          type="text"
-          name="title"
-          id="title"
-          placeholder="Add a title..."
-        />
-        <input
-          className="comment-input"
-          type="url"
-          name="image"
-          id="image"
-          placeholder="Add an image url..."
-        />
-        <button className="comment-button" type="submit">Post</button>
-      </form>
-      {images.map(image => (
-          <article className="image-card">
-            <h2 className="title">{image.title}</h2>
-            <button className='comment-button' 
-            onClick={() => deletePost(image)}>Delete Post</button>
-            <img src={image.image} className="image" />
-            <div className="likes-section">
-              <span className="likes">{image.likes} likes</span>
-              <button className="like-button" 
-              onClick={() => updateLikes(image)}>♥</button>
-            </div>
-            <ul className="comments">
-              {comments.filter(comment => comment.imageId === image.id).map(comment => (
-                <li>{comment.content}
-                <button className='comment-button'
-                onClick={() => deleteComment(comment)}>Delete Comment</button>
-                </li>
-                
-              ))}
-            </ul>
-            <form className="comment-form"
-            onSubmit={(event) => {
-              event.preventDefault()
-              addComment(image, newComment)}}>
-              <input
-              className="comment-input"
-              type="text"
-              name="comment"
-              placeholder="Add a comment..."
-              onChange={e => setNewComment(e.target.value)}
-              />
-          <button className="comment-button" type="submit">Post</button>
-        </form>
-          </article>
-      ))}
+      <img className="logo" src="assets/hoxtagram-logo.png" />
+      <section className="image-container">
+        
+        <AddPostForm addPost = {addPost}/>
+
+        {images.map(image => (
+          <Post image = {image} 
+          deletePost = {deletePost} 
+          updateLikes = {updateLikes} 
+          comments = {comments} 
+          deleteComment = {deleteComment} 
+          addComment = {addComment}/>
+        ))}
       </section>
     </div>
   )
